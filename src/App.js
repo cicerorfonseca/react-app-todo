@@ -4,29 +4,21 @@ import Header from './components/layout/Header';
 import Todos from './components/Todos';
 import AddTodo from './components/AddTodo';
 import About from './components/pages/About';
-import {v4 as uuid} from 'uuid';
+// Once we are using the jsonplaceholder API we don't need the auto ID anymore
+// import {v4 as uuid} from 'uuid';
+import axios from 'axios';
 
 import './App.css';
+import Axios from 'axios';
 
 class App extends Component {
   state = {
-    todos: [
-      {
-        id: uuid(),
-        title: 'Take out the trash',
-        completed: false
-      },
-      {
-        id: uuid(),
-        title: 'Dinner with wife',
-        completed: true
-      },
-      {
-        id: uuid(),
-        title: 'Meeting with boss',
-        completed: false
-      }
-    ]
+    todos: []
+  }
+
+  componentDidMount() {
+    axios.get('https://jsonplaceholder.typicode.com/todos?_limit=10')
+      .then(res => this.setState({ todos: res.data }));
   }
 
   // Toggle Complete
@@ -43,21 +35,29 @@ class App extends Component {
 
   // Add Todo
   addTodo = (title) => {
-    const newTodo = {
-      id: uuid(),
-      // In ES6 as the state and the input have the same name you don't need
-      // title: title
+    // Once Im using jsonplaceholder api to post I dont need this anymore
+    // const newTodo = {
+    //   id: uuid(),
+    //   // In ES6 as the state and the input have the same name you don't need
+    //   // title: title
+    //   title,
+    //   completed: false
+    // }
+
+    axios.post('https://jsonplaceholder.typicode.com/todos', {
       title,
       completed: false
-    }
-
-    this.setState({ todos: [...this.state.todos, newTodo]});
+    })
+      .then(res => this.setState({ todos: [...this.state.todos, res.data]}));
   }
 
   // Delete Todo
   deleteTodo = (id) => {
-    // Created a copy using the spread operator and filters it to show todos !== from id
-    this.setState({ todos: [...this.state.todos.filter(todo => todo.id !== id)]})
+    axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`)
+      .then(res => this.setState({ todos: [...this.state.todos.filter(todo => todo.id !== id)]}));
+
+    // Create a copy using the spread operator and filters it to show todos !== from id
+    // this.setState({ todos: [...this.state.todos.filter(todo => todo.id !== id)]})
   }
 
   render() {
@@ -67,6 +67,7 @@ class App extends Component {
         <div className="App">
           <div className="container">
             <Header />
+
             <Route 
               exact
               path="/" render={props => (
@@ -79,6 +80,7 @@ class App extends Component {
                   />
                 </React.Fragment>
             )}/>
+
             <Route path="/about" component={About} />
           </div>
         </div>
