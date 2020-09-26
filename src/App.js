@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
+import { BrowserRouter as Router, Route} from 'react-router-dom';
 import Header from './components/layout/Header';
 import Todos from './components/Todos';
+import AddTodo from './components/AddTodo';
+import About from './components/pages/About';
+import {v4 as uuid} from 'uuid';
 
 import './App.css';
 
@@ -8,17 +12,17 @@ class App extends Component {
   state = {
     todos: [
       {
-        id: 1,
+        id: uuid(),
         title: 'Take out the trash',
         completed: false
       },
       {
-        id: 2,
+        id: uuid(),
         title: 'Dinner with wife',
         completed: true
       },
       {
-        id: 3,
+        id: uuid(),
         title: 'Meeting with boss',
         completed: false
       }
@@ -37,6 +41,19 @@ class App extends Component {
     })})
   }
 
+  // Add Todo
+  addTodo = (title) => {
+    const newTodo = {
+      id: uuid(),
+      // In ES6 as the state and the input have the same name you don't need
+      // title: title
+      title,
+      completed: false
+    }
+
+    this.setState({ todos: [...this.state.todos, newTodo]});
+  }
+
   // Delete Todo
   deleteTodo = (id) => {
     // Created a copy using the spread operator and filters it to show todos !== from id
@@ -46,15 +63,26 @@ class App extends Component {
   render() {
     console.log(this.state.todos);
     return (
-      <div className="App">
-        <Header />
-        
-        <Todos 
-          todos={this.state.todos}
-          markComplete={this.markComplete}
-          deleteTodo={this.deleteTodo}
-        />
-      </div>
+      <Router>
+        <div className="App">
+          <div className="container">
+            <Header />
+            <Route 
+              exact
+              path="/" render={props => (
+                <React.Fragment>
+                  <AddTodo addTodo={this.addTodo}/>
+                  <Todos 
+                    todos={this.state.todos}
+                    markComplete={this.markComplete}
+                    deleteTodo={this.deleteTodo}
+                  />
+                </React.Fragment>
+            )}/>
+            <Route path="/about" component={About} />
+          </div>
+        </div>
+      </Router>
     );
   }
 }
